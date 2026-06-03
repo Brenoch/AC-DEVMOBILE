@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         btnDeletar.setOnClickListener { deletar() }
         btnListar.setOnClickListener { listar() }
 
-        listar()
+        // Removido o listar() automático do onCreate
     }
 
     private fun listar() {
@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
                     val produtos = response.body() ?: emptyList()
                     adapter.updateList(produtos)
                 } else {
-                    Toast.makeText(this@MainActivity, "Erro ao listar", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Erro ao listar: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -78,19 +78,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun salvar() {
         val nome = etNome.text.toString()
-        if (nome.isEmpty()) return
+        if (nome.isEmpty()) {
+            Toast.makeText(this, "Informe o nome", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val produto = Produto(nome = nome)
         RetrofitClient.instance.salvar(produto).enqueue(object : Callback<Produto> {
             override fun onResponse(call: Call<Produto>, response: Response<Produto>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@MainActivity, "Salvo com sucesso", Toast.LENGTH_SHORT).show()
-                    listar()
+                    Toast.makeText(this@MainActivity, "Salvo com sucesso! Clique em Listar para ver.", Toast.LENGTH_SHORT).show()
+                    etNome.text.clear()
+                    // Limpa a lista atual para forçar o usuário a clicar em listar
+                    adapter.updateList(emptyList())
+                } else {
+                    Toast.makeText(this@MainActivity, "Erro ao salvar: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<Produto>, t: Throwable) {
-                Toast.makeText(this@MainActivity, "Erro ao salvar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Falha na conexão: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -98,39 +105,54 @@ class MainActivity : AppCompatActivity() {
     private fun atualizar() {
         val idStr = etId.text.toString()
         val nome = etNome.text.toString()
-        if (idStr.isEmpty() || nome.isEmpty()) return
+        if (idStr.isEmpty() || nome.isEmpty()) {
+            Toast.makeText(this, "Informe ID e Nome", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val id = idStr.toLong()
         val produto = Produto(id = id, nome = nome)
         RetrofitClient.instance.atualizar(id, produto).enqueue(object : Callback<Produto> {
             override fun onResponse(call: Call<Produto>, response: Response<Produto>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@MainActivity, "Atualizado com sucesso", Toast.LENGTH_SHORT).show()
-                    listar()
+                    Toast.makeText(this@MainActivity, "Atualizado com sucesso! Clique em Listar para ver.", Toast.LENGTH_SHORT).show()
+                    etId.text.clear()
+                    etNome.text.clear()
+                    // Limpa a lista atual para forçar o usuário a clicar em listar
+                    adapter.updateList(emptyList())
+                } else {
+                    Toast.makeText(this@MainActivity, "Erro ao atualizar: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<Produto>, t: Throwable) {
-                Toast.makeText(this@MainActivity, "Erro ao atualizar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Falha na conexão: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
     private fun deletar() {
         val idStr = etId.text.toString()
-        if (idStr.isEmpty()) return
+        if (idStr.isEmpty()) {
+            Toast.makeText(this, "Informe o ID", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val id = idStr.toLong()
         RetrofitClient.instance.deletar(id).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@MainActivity, "Deletado com sucesso", Toast.LENGTH_SHORT).show()
-                    listar()
+                    Toast.makeText(this@MainActivity, "Deletado com sucesso! Clique em Listar para ver.", Toast.LENGTH_SHORT).show()
+                    etId.text.clear()
+                    // Limpa a lista atual para forçar o usuário a clicar em listar
+                    adapter.updateList(emptyList())
+                } else {
+                    Toast.makeText(this@MainActivity, "Erro ao deletar: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Toast.makeText(this@MainActivity, "Erro ao deletar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Falha na conexão: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
