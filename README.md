@@ -56,12 +56,12 @@ O repositório está dividido em duas partes principais:
 ### Aplicativo Android
 O app permite inserir o nome do produto, salvar, atualizar dados existentes via ID, deletar e listar sob demanda.
 
-![App Screenshot](screenshots/app_screenshot.png)
+![App Screenshot](img.png)
 
 ### API Backend (Spring Boot)
 A API gerencia a persistência dos dados e fornece os endpoints REST para o aplicativo.
 
-![API Screenshot](screenshots/api_screenshot.png)
+![API Screenshot](api_screenshot.png)
 
 ### Resposta JSON (Exemplo)
 Exemplo de resposta em `GET /produtos`:
